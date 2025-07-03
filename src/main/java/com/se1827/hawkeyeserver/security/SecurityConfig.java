@@ -2,22 +2,16 @@ package com.se1827.hawkeyeserver.security;
 
 import java.util.Arrays;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 import com.se1827.hawkeyeserver.user.UserRepository;
 import com.se1827.hawkeyeserver.utils.Constants;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -43,8 +37,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(e -> e.authenticationEntryPoint(
-                        ((req, resp, authEx) -> resp.sendError(HttpServletResponse.SC_UNAUTHORIZED))))
                 .build();
     }
 
@@ -61,18 +53,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
     public UserDetailsService userDetailsService() {
         return username -> new UserPrincipal(userRepository.findByEmail(username).orElseThrow(
                 () -> new UsernameNotFoundException(String.format("User not found with email: %s", username))));
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
     }
 }

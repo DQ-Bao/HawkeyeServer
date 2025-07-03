@@ -31,8 +31,8 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-
-    private String password;
+    private String name;
+    private String picture;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
