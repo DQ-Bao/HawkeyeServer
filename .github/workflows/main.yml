@@ -28,6 +28,11 @@ jobs:
           echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Ensure app directory exists on VM
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} \
+          "mkdir -p ${{ secrets.APP_DIRECTORY }}"
+
       - name: Copy Files to VM
         run: |
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
