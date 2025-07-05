@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./.docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - app-network
     healthcheck:
@@ -21,13 +22,11 @@ services:
       retries: 5
   api:
     build:
-      context: .
+      context: ./HawkeyeServer.Api
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hawkeye
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_PROFILES_ACTIVE: prod
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings_Default: Server=db;Port=3306;Database=hawkeye;User=postgres;Password=postgres;
+      Logging_LogLevel_Default: Warning
     ports:
       - "8080:8080"
     depends_on:
