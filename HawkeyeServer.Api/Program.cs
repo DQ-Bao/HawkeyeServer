@@ -11,6 +11,11 @@ builder.Services.AddSingleton<GoogleTokenVerifier>();
 builder.Services.ConfigureHttpJsonOptions(opts =>
     opts.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 );
+builder.Services.AddSignalR(opts =>
+{
+    opts.EnableDetailedErrors = true;
+    opts.MaximumReceiveMessageSize = 1024 * 1024 * 10;
+});
 
 var app = builder.Build();
 app.UseAuthentication();
