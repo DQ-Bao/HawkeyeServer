@@ -15,6 +15,7 @@ public static class ConfigureServices
     {
         services.AddScoped<IDbConnection>(_ => new NpgsqlConnection(connectionString));
         services.AddScoped<IUserDataAccess, UserDataAccess>();
+        services.AddScoped<ITripDataAccess, TripDataAccess>();
         return services;
     }
 

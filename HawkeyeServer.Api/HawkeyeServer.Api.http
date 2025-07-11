@@ -1,1 +1,13 @@
 GET http://localhost:5144/api/v1/test
+
+###
+
+POST http://localhost:5144/api/v1/trip
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxIiwic3ViIjoiZG9hbnF1b2NiYW9vb29vb29AZ21haWwuY29tIiwiZW1haWwiOiJkb2FucXVvY2Jhb29vb29vb0BnbWFpbC5jb20iLCJuYW1lIjoiRG_Do24gUXXhu5FjIELhuqNvIiwiZXhwIjoxNzYyNzkwMTcxfQ.5UrXynVnTr7mpJQrzwKcHpBYtVh2KY5RbkxVSG_KuFE
+
+{
+    "destination": "Japan",
+    "startDate": "2025-07-08",
+    "endDate": "2025-07-13"
+}

@@ -31,5 +31,6 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/api/v1/test", () => "Hello World");
 app.MapHub<TripHub>("/hub/v1/trip");
 app.MapAuthEndpoints();
+app.MapTripEndpoints();
 
 app.Run();
