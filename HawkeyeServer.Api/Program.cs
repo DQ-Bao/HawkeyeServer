@@ -1,5 +1,6 @@
 using System.Text.Json;
 using HawkeyeServer.Api.Endpoints;
+using HawkeyeServer.Api.Services;
 using HawkeyeServer.Api.Utils;
 using Scalar.AspNetCore;
 
@@ -8,6 +9,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddDataAccesses(builder.Configuration.GetConnectionString("Default")!);
 builder.Services.AddJwtAuth(opts => opts.Key = builder.Configuration["Jwt:Key"]!);
 builder.Services.AddSingleton<GoogleTokenVerifier>();
+builder.Services.AddHostedService<TripPersistService>();
 builder.Services.ConfigureHttpJsonOptions(opts =>
     opts.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 );
@@ -29,7 +31,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapGet("/api/v1/test", () => "Hello World");
-app.MapHub<TripHub>("/hub/v1/trip");
+app.MapHub<TripHub>("/hub/v1/trip").RequireAuthorization();
 app.MapAuthEndpoints();
 app.MapTripEndpoints();
 

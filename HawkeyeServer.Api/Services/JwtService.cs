@@ -18,8 +18,8 @@ public class JwtService(IOptions<JwtOptions> options)
     {
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Jti, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Sub, user.Email),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtRegisteredClaimNames.Name, user.Name),
         };

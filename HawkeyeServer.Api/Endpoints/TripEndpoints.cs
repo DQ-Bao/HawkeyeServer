@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using HawkeyeServer.Api.Data;
 using HawkeyeServer.Api.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -27,24 +29,58 @@ public static class TripEndpoints
 {
     public static IEndpointRouteBuilder MapTripEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost(
-                "/api/v1/trip",
-                async ([FromBody] CreateTripRequest req, ITripDataAccess trips) =>
+        var routes = app.MapGroup("/api/v1/trips");
+        routes
+            .MapPost(
+                "",
+                async (
+                    [FromBody] CreateTripRequest req,
+                    ClaimsPrincipal user,
+                    ITripDataAccess trips
+                ) =>
                 {
+                    var userId = long.Parse(user.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
                     var trip = await trips.AddAsync(
                         new Trip
                         {
+                            CreatedBy = userId,
                             Title = $"Trip to {req.Destination}",
                             Destination = req.Destination,
                             StartDate = req.StartDate,
                             EndDate = req.EndDate,
+                            JoinCode = GenerateJoinCode(),
                         }
                     );
-                    return Results.Created($"/api/v1/trips/{trip.Id}", trip);
+                    return Results.Created($"/trips/{trip.Id}", trip);
                 }
             )
             .AddEndpointFilter<ValidationFilter<CreateTripRequest>>()
             .RequireAuthorization();
+        routes
+            .MapPost(
+                "/join/{code}",
+                async ([FromRoute] string code, ClaimsPrincipal user, ITripDataAccess trips) =>
+                {
+                    var userId = long.Parse(user.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+                    var withPlaces = await trips.GetByCodeAsync(code);
+                    if (withPlaces is null)
+                        return Results.NotFound("Trip not found");
+                    var mate = await trips.AddMateAsync(
+                        new TripMate { UserId = userId, TripId = withPlaces.Trip.Id }
+                    );
+                    return Results.Created($"/trips/{withPlaces.Trip.Id}", mate);
+                }
+            )
+            .RequireAuthorization();
         return app;
+    }
+
+    private static string GenerateJoinCode()
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var random = new Random();
+        return new string(
+            Enumerable.Range(0, 10).Select(_ => chars[random.Next(chars.Length)]).ToArray()
+        );
     }
 }
