@@ -4,7 +4,7 @@ namespace HawkeyeServer.Api.Services;
 
 public class TripPersistService(
     TripMemoryStore memory,
-    ITripDataAccess trips,
+    IServiceScopeFactory scopeFactory,
     ILogger<TripPersistService> logger
 ) : BackgroundService
 {
@@ -15,6 +15,8 @@ public class TripPersistService(
         while (!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(_interval, stoppingToken);
+            using var scope = scopeFactory.CreateScope();
+            var trips = scope.ServiceProvider.GetRequiredService<ITripDataAccess>();
             foreach (var (tripId, trip) in memory.GetAllTrips())
             {
                 try

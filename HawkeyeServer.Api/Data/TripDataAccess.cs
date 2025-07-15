@@ -138,4 +138,7 @@ public class TripDataAccess(IDbConnection db, IPlaceDataAccess places) : ITripDa
 
         return new WithPlaces<Trip>(trip) { Places = updatedPlaces };
     }
+
+    public async Task<IEnumerable<Trip>> GetAllByUser(long userId) =>
+        await db.QueryAsync<Trip>(TripCommand.GetAllByUser, new { UserId = userId });
 }

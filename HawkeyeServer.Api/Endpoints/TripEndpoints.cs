@@ -31,6 +31,17 @@ public static class TripEndpoints
     {
         var routes = app.MapGroup("/api/v1/trips");
         routes
+            .MapGet(
+                "/me",
+                async (ClaimsPrincipal user, ITripDataAccess trips) =>
+                    Results.Ok(
+                        await trips.GetAllByUser(
+                            long.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!)
+                        )
+                    )
+            )
+            .RequireAuthorization();
+        routes
             .MapPost(
                 "",
                 async (
@@ -39,7 +50,7 @@ public static class TripEndpoints
                     ITripDataAccess trips
                 ) =>
                 {
-                    var userId = long.Parse(user.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+                    var userId = long.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
                     var trip = await trips.AddAsync(
                         new Trip
                         {
@@ -61,7 +72,7 @@ public static class TripEndpoints
                 "/join/{code}",
                 async ([FromRoute] string code, ClaimsPrincipal user, ITripDataAccess trips) =>
                 {
-                    var userId = long.Parse(user.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+                    var userId = long.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
                     var withPlaces = await trips.GetByCodeAsync(code);
                     if (withPlaces is null)
                         return Results.NotFound("Trip not found");

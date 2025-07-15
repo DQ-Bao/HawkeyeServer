@@ -47,6 +47,7 @@ public static class TripCommand
         left join place p on p.trip_id = t.id
         left join activity a on a.place_id = p.id
         where t.id = @Id;";
+    public const string GetAllByUser = @"select * from trip where created_by = @UserId";
 }
 
 public interface ITripDataAccess
@@ -59,4 +60,5 @@ public interface ITripDataAccess
     Task<WithPlaces<Trip>?> GetByCodeAsync(string joinCode);
     Task<WithPlaces<Trip>?> GetByIdAsync(long id);
     Task<WithPlaces<Trip>> SaveAsync(WithPlaces<Trip> withPlaces);
+    Task<IEnumerable<Trip>> GetAllByUser(long userId);
 }

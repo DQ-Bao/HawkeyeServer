@@ -253,7 +253,7 @@ public class TripHub(ITripDataAccess trips, TripMemoryStore memory) : Hub
             return;
         }
 
-        var userIdStr = Context.User?.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        var userIdStr = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!long.TryParse(userIdStr, out var userId))
         {
             Context.Abort();
